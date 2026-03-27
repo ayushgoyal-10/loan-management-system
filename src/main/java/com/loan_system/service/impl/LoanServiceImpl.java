@@ -8,12 +8,15 @@ import com.loan_system.entity.LoanStatus;
 import com.loan_system.entity.User;
 import com.loan_system.repository.LoanApplicationRepository;
 import com.loan_system.repository.UserRepository;
+import com.loan_system.service.EmiService;
 import com.loan_system.service.LoanService;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 public class LoanServiceImpl implements LoanService {
 
     private final LoanApplicationRepository loanApplicationRepository;
@@ -30,7 +33,7 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public LoanResponse applyLoan(Long userId, LoanRequest request) {
-        User user = userRepository.findByEmail(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         LoanApplication loan = LoanApplication.builder()
                 .user(user)
@@ -51,8 +54,13 @@ public class LoanServiceImpl implements LoanService {
     public LoanResponse updateLoanStatus(Long loanId, LoanStatusRequest request) {
         LoanApplication loan = loanApplicationRepository.findById(loanId).orElseThrow(() -> new RuntimeException("Loan application not found"));
 
+        if(loan.getStatus()==LoanStatus.APPROVED){
+            throw new RuntimeException("Loan is already approved");
+        }
+
         loan.setStatus(request.getStatus());
         loan.setUpdatedAt(LocalDateTime.now());
+
 
         if(loan.getStatus()==LoanStatus.REJECTED){
             loan.setRejectionReason(request.getRejectionReason());

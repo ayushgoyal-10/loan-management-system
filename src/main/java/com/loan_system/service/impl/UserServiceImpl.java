@@ -7,7 +7,11 @@ import com.loan_system.entity.User;
 import com.loan_system.repository.UserRepository;
 import com.loan_system.service.UserService;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -37,5 +41,13 @@ public class UserServiceImpl implements UserService {
 
         User saved = userRepository.save(user);
         return modelMapper.map(saved, UserResponse.class);
+    }
+
+    @Override
+    public List<UserResponse> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(user-> modelMapper.map(user, UserResponse.class))
+                .toList();
     }
 }

@@ -6,6 +6,8 @@ import com.loan_system.dto.response.LoanResponse;
 import com.loan_system.entity.LoanApplication;
 import com.loan_system.entity.LoanStatus;
 import com.loan_system.entity.User;
+import com.loan_system.exception.BadRequestException;
+import com.loan_system.exception.ResourceNotFoundException;
 import com.loan_system.repository.LoanApplicationRepository;
 import com.loan_system.repository.UserRepository;
 import com.loan_system.service.EmiService;
@@ -33,7 +35,7 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public LoanResponse applyLoan(Long userId, LoanRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         LoanApplication loan = LoanApplication.builder()
                 .user(user)
@@ -52,10 +54,10 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public LoanResponse updateLoanStatus(Long loanId, LoanStatusRequest request) {
-        LoanApplication loan = loanApplicationRepository.findById(loanId).orElseThrow(() -> new RuntimeException("Loan application not found"));
+        LoanApplication loan = loanApplicationRepository.findById(loanId).orElseThrow(() -> new ResourceNotFoundException("Loan application not found"));
 
         if(loan.getStatus()==LoanStatus.APPROVED){
-            throw new RuntimeException("Loan is already approved");
+            throw new BadRequestException("Loan is already approved");
         }
 
         loan.setStatus(request.getStatus());
@@ -78,7 +80,7 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public List<LoanResponse> getLoanByUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         List<LoanApplication> loans = loanApplicationRepository.findByUser(user);
 
         List<LoanResponse> loanResponses = loans.stream()

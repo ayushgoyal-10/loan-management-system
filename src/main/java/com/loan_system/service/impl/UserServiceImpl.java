@@ -4,6 +4,7 @@ import com.loan_system.dto.request.RegisterRequest;
 import com.loan_system.dto.response.UserResponse;
 import com.loan_system.entity.Role;
 import com.loan_system.entity.User;
+import com.loan_system.exception.BadRequestException;
 import com.loan_system.repository.UserRepository;
 import com.loan_system.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -27,12 +28,12 @@ public class UserServiceImpl implements UserService {
 
         // checking duplicate emails
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email already exists");
+            throw new BadRequestException("Email already exists");
         }
 
         // checking duplicate phone numbers
         if(userRepository.existsByPhoneNumber(request.getPhoneNumber())){
-            throw new RuntimeException("Phone number already exists");
+            throw new BadRequestException("Phone number already exists");
         }
 
         // mapping request dto to entity

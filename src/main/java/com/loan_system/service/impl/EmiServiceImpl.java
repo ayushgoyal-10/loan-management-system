@@ -4,6 +4,7 @@ import com.loan_system.dto.response.EmiResponse;
 import com.loan_system.entity.EmiSchedule;
 import com.loan_system.entity.EmiStatus;
 import com.loan_system.entity.LoanApplication;
+import com.loan_system.exception.ResourceNotFoundException;
 import com.loan_system.repository.EmiScheduleRepository;
 import com.loan_system.repository.LoanApplicationRepository;
 import com.loan_system.service.EmiService;
@@ -74,7 +75,7 @@ public class EmiServiceImpl implements EmiService {
     @Override
     public List<EmiResponse> getEmisByLoan(Long loanId) {
         LoanApplication loan = loanApplicationRepository.findById(loanId)
-                .orElseThrow(() -> new RuntimeException("Loan not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
 
         List<EmiResponse> emiResponses = emiScheduleRepository.findByLoan(loan).stream()
                 .map(emi -> modelMapper.map(emi, EmiResponse.class)).toList();

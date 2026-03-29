@@ -5,6 +5,8 @@ import com.loan_system.entity.EmiSchedule;
 import com.loan_system.entity.EmiStatus;
 import com.loan_system.entity.Repayment;
 import com.loan_system.entity.User;
+import com.loan_system.exception.BadRequestException;
+import com.loan_system.exception.ResourceNotFoundException;
 import com.loan_system.repository.EmiScheduleRepository;
 import com.loan_system.repository.RepaymentRepository;
 import com.loan_system.repository.UserRepository;
@@ -32,23 +34,23 @@ public class RepaymentServiceImpl implements RepaymentService {
     public RepaymentResponse payEmi(Long emiId, Long userId) {
 
         User user= userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         EmiSchedule emi = emiScheduleRepository.findById(emiId)
-                .orElseThrow(() -> new RuntimeException("EMI not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("EMI not found"));
 
         if(emi.getEmiStatus()== EmiStatus.PAID){
-            throw new RuntimeException("EMI is already paid");
+            throw new BadRequestException("EMI is already paid");
         }
 
         // if previous EMI is paid
         if (emi.getEmiNumber() > 1) {
             EmiSchedule previousEmi = emiScheduleRepository
                     .findByLoanAndEmiNumber(emi.getLoan(), emi.getEmiNumber() - 1)
-                    .orElseThrow(() -> new RuntimeException("Previous EMI not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Previous EMI not found"));
 
             if (previousEmi.getEmiStatus() != EmiStatus.PAID) {
-                throw new RuntimeException("Please pay EMI " + (emi.getEmiNumber() - 1) + " first");
+                throw new BadRequestException("Please pay EMI " + (emi.getEmiNumber() - 1) + " first");
             }
         }
 
@@ -86,7 +88,7 @@ public class RepaymentServiceImpl implements RepaymentService {
     public List<RepaymentResponse> getRepaymentsByUser(Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<Repayment> repayments = repaymentRepository.findByUser(user);
         return repayments.stream()

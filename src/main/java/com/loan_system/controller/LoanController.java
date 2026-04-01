@@ -28,7 +28,7 @@ public class LoanController {
         return ResponseEntity.status(HttpStatus.CREATED).body(loanResponse);
     }
 
-    @GetMapping
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<LoanResponse>> getLoansByUser(@PathVariable Long userId) {
         List<LoanResponse> loanResponseList = loanService.getLoanByUser(userId);
         return ResponseEntity.ok(loanResponseList);

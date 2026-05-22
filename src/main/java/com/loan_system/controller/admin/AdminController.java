@@ -5,13 +5,15 @@ import com.loan_system.dto.response.LoanResponse;
 import com.loan_system.dto.response.UserResponse;
 import com.loan_system.service.LoanService;
 import com.loan_system.service.UserService;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/admin")
 public class AdminController {
@@ -26,8 +28,12 @@ public class AdminController {
     }
 
     @GetMapping("/loans/all")
-    public ResponseEntity<List<LoanResponse>> getAllLoans(){
-        List<LoanResponse> allLoans = loanService.getAllLoans();
+    public ResponseEntity<Page<LoanResponse>> getAllLoans(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+
+        Pageable pageable= PageRequest.of(page, size, Sort.by("appliedAt").descending());
+        Page<LoanResponse> allLoans = loanService.getAllLoans(pageable);
         return ResponseEntity.ok(allLoans);
     }
 
@@ -39,6 +45,7 @@ public class AdminController {
         LoanResponse loanResponse = loanService.updateLoanStatus(loanId, request);
         return ResponseEntity.ok(loanResponse);
     }
+
 
     @GetMapping("/users/all")
     public ResponseEntity<List<UserResponse>> getAllUsers(){

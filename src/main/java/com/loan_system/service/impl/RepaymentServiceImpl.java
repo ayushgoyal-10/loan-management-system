@@ -12,6 +12,7 @@ import com.loan_system.repository.RepaymentRepository;
 import com.loan_system.repository.UserRepository;
 import com.loan_system.service.RepaymentService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ public class RepaymentServiceImpl implements RepaymentService {
     }
 
     @Override
+    @Transactional
     public RepaymentResponse payEmi(Long emiId, Long userId) {
 
         User user= userRepository.findById(userId)
